@@ -114,7 +114,7 @@
     "\u0018Game saved.",
 
     # 26 = "\u0018リスタート。"
-    "\u0018Restarting.",
+    "\u0018Save loaded.",
 
     # 27 = "込めません。\u0015どちらか選んでください。\u0015R(もう一度トライ) Q(ゲームを終了する)\u0018"
     " error.\u0015Please select an option:\u0015(R)etry or (Q)uit game\u0018",
@@ -125,8 +125,8 @@
     # 29 = "［呪文］"
     "[Spells]",
 
-    # 2a = "何も持っていない。"
-    "Not carrying anything.",
+    #何も持っていない。"
+    "Don't have any.",
 
     # 2b = "使う"
     "Use",

@@ -1,6 +1,6 @@
 [
-    # 00 = "オートダイアルを行なう。"
-    "Enables auto-dialing.",
+    #オートダイアルを行なう。"
+    "Enables auto-dialing.\0\0\0", # oops lol
 
     # 01 = "UUUUUUUA>"
     "UUUUUUUA>",
