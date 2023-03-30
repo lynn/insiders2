@@ -1,0 +1,10 @@
+[
+    # 00 = "オートダイアルを行なう。"
+    "オートダイアルを行なう。",
+
+    # 01 = "UUUUUUUA>"
+    "UUUUUUUA>",
+
+    # 02 = "UC1     CU     CA     S1     SU       VOID   NWL    INS    REP     ^Z"
+    "UC1     CU     CA     S1     SU       VOID   NWL    INS    REP     ^Z",
+]
