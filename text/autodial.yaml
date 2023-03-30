@@ -1,6 +1,6 @@
 [
     # 00 = "オートダイアルを行なう。"
-    "オートダイアルを行なう。",
+    "Enables auto-dialing.",
 
     # 01 = "UUUUUUUA>"
     "UUUUUUUA>",

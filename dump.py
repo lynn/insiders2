@@ -1,4 +1,7 @@
 import json
+import yaml
+import os
+from decode import decode, encode
 
 text_sections = [
     ("AHM", 0x7200, 0x7400, "ending"),
@@ -36,14 +39,12 @@ text_sections = [
 ]
 
 
-def dump():
+def dump(fs):
     def junk(text: str) -> bool:
         return all(c in "U裹" for c in text)
 
-
     for file, start, end, name in text_sections:
-        with open("decoded/" + file, "rb") as f:
-            buf = f.read()
+        buf = decode(fs[file].data)
         text = buf[start:end].decode("cp932")
         texts = text.split("\0")
         while junk(texts[-1]):
@@ -56,6 +57,25 @@ def dump():
             lines.append(f"    # {i:02x} = {tr}\n")
             lines.append(f"    {tr},\n")
         lines.append("]\n")
-        with open(f"text/{name}.yaml", "w") as f:
+        fn = f"text/{name}.yaml"
+        if os.path.isfile(fn):
+            print(f"{fn} exists, not overwriting")
+            continue
+        with open(fn, "w") as f:
             f.writelines(lines)
-        print(texts)
+        # print(texts)
+
+
+def reinsert(fs):
+    for file, start, end, name in text_sections:
+        with open(f"text/{name}.yaml") as f:
+            texts = yaml.safe_load(f)
+        buf = bytearray(decode(fs[file].data))
+        tl = "\0".join(texts).encode("cp932")
+        max_len = end - start
+        if len(tl) <= max_len:
+            print(f"{name} ok {len(tl)} ≤ {max_len}")
+            buf[start : start + len(tl)] = tl
+            fs[file].data = encode(buf)
+        else:
+            raise ValueError(f"{name} TL too long")

@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass
 from decode import decode, encode
+from dump import dump, reinsert
 
 
 @dataclass
@@ -29,9 +30,11 @@ if __name__ == "__main__":
         end = start + length
         fs[name] = Entry(i, name, start, end, rom[start:end])
 
-    fs["D1"].data = bytearray(decode(fs["D1"].data))
-    fs["D1"].data[0x4000:0x4010] = b"im a cool hacker"
-    fs["D1"].data = encode(fs["D1"].data)
+    # fs["D1"].data = bytearray(decode(fs["D1"].data))
+    # fs["D1"].data[0x4000:0x4010] = b"im a cool hacker"
+    # fs["D1"].data = encode(fs["D1"].data)
+    # dump(fs)
+    reinsert(fs)
 
     for entry in fs.values():
         assert len(entry.data) == entry.end - entry.start
