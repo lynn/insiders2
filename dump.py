@@ -73,7 +73,7 @@ def reinsert(fs):
         tl = "\0".join(texts).encode("cp932")
         max_len = end - start
         if len(tl) <= max_len:
-            print(f"{name} ok {len(tl)} ≤ {max_len}")
+            print(f"[{name:9}] \x1b[32mOK\x1b[0m {len(tl):5} ≤ {max_len:5}")
             buf[start : start + len(tl)] = tl
             fs[file].data = buf
         else:
