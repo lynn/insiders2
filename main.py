@@ -2,6 +2,7 @@
 # COMMAND.COM: len 0xd6cc, sector 0xd0 → 0x2e810 = 0xdc * 512 + 0x13010
 
 from dataclasses import dataclass
+from typing import Dict, List
 from codec import decrypt, encrypt
 from dump import dump, reinsert
 
@@ -35,6 +36,12 @@ class Entry:
     data: bytes
 
 
+@dataclass
+class Context:
+    fs: Dict[str, Entry]
+    font_widths: List[int]
+
+
 if __name__ == "__main__":
     # rom_name = "Insiders - Network no Bouken - Eve ga Inai.nfd"
     rom_name = "saved.nfd"
@@ -43,6 +50,7 @@ if __name__ == "__main__":
 
     fs = {}
     START = 0x13010
+    k = -1
     for i in range(50):
         header = rom[START + 32 * i : START + 32 * i + 32]
         name = bytes(header[:8]).decode().strip()
@@ -51,15 +59,14 @@ if __name__ == "__main__":
         start = (sector + 0xC) * 512 + START
         end = start + length
         data = rom[start:end]
+        if name == "D1":
+            font_widths = data[0x1100:0x1180]
         if name in encrypted:
             data = decrypt(data)
         fs[name] = Entry(i, name, start, end, data)
 
-    # fs["D1"].data = bytearray(decode(fs["D1"].data))
-    # fs["D1"].data[0x4000:0x4010] = b"im a cool hacker"
-    # fs["D1"].data = encode(fs["D1"].data)
-    # dump(fs)
-    reinsert(fs)
+    ctx = Context(fs, font_widths)
+    reinsert(ctx)
 
     for entry in fs.values():
         assert len(entry.data) == entry.end - entry.start

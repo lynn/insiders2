@@ -1,6 +1,40 @@
 import json
 import yaml
 import os
+import re
+
+
+def wrap_text(text: str, ctx, max_width: int = 300) -> str:
+    result = []
+    x = 0
+    for token in re.findall("[A-Za-z0-9'-,.!?]+|.", text):
+        if token == "\r":
+            result.append("\r")
+            x = 0
+        elif token == " ":
+            result.append(" ")
+            x += ctx.font_widths[32] + 1
+        else:
+            width = sum(ctx.font_widths[ord(c)] + 1 for c in token)
+            if x + width > max_width:
+                if result[-1:] == [" "]:
+                    result.pop()
+                result.append("\r")
+                x = 0
+            result.append(token)
+            x += width
+    return "".join(result)
+
+
+def process(text: str, file: str, ctx) -> str:
+    if text.startswith("~"):
+        if file == "D1": # scroll
+            return wrap_text(text[1:], ctx, 400)
+        else:
+            return wrap_text(text[1:], ctx)
+    else:
+        return text
+
 
 text_sections = [
     ("AHM", 0x7200, 0x7400, "ending"),
@@ -38,12 +72,12 @@ text_sections = [
 ]
 
 
-def dump(fs):
+def dump(ctx):
     def junk(text: str) -> bool:
         return all(c in "U裹" for c in text)
 
     for file, start, end, name in text_sections:
-        buf = fs[file].data
+        buf = ctx.fs[file].data
         text = buf[start:end].decode("cp932")
         texts = text.split("\0")
         while junk(texts[-1]):
@@ -65,16 +99,17 @@ def dump(fs):
         # print(texts)
 
 
-def reinsert(fs):
+def reinsert(ctx):
     for file, start, end, name in text_sections:
         with open(f"text/{name}.yaml") as f:
             texts = yaml.safe_load(f)
-        buf = bytearray(fs[file].data)
+        texts = [process(t, file, ctx) for t in texts]
+        buf = bytearray(ctx.fs[file].data)
         tl = "\0".join(texts).encode("cp932")
         max_len = end - start
         if len(tl) <= max_len:
             print(f"[{name:9}] \x1b[32mOK\x1b[0m {len(tl):5} ≤ {max_len:5}")
             buf[start : start + len(tl)] = tl
-            fs[file].data = buf
+            ctx.fs[file].data = buf
         else:
             raise ValueError(f"{name} TL too long")
